@@ -125,6 +125,13 @@ extension_defaults = widget_defaults.copy()
 def get_keyboard_layout():
     return subprocess.check_output(['xkblayout-state', 'print', '"%s"']).decode('utf-8').strip()[1:3]
 
+
+colors = {
+    "blue" : "#154c79",
+    "green" : "#938e37",
+    "red" : "#93373b"
+}
+
 screens = [
     Screen(
         top=bar.Bar(
@@ -139,15 +146,30 @@ screens = [
                     },
                     name_transform=lambda name: name.upper(),
                 ),
-                widget.TextBox("custom config", name="default"),
-                widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),
+                widget.TextBox("config 0.1", name="default",
+                    background=colors["red"]),
+                widget.NvidiaSensors(format='GPU {temp}°C', threshold=70, foreground="#86b300",
+                foreground_alert="#ff0000", update_interval=0.5,
+                 background=colors["blue"]),
+                widget.ThermalSensor(format='{tag} : {temp:.0f}{unit}',
+                 background=colors["blue"]),
+                widget.CPU(update_interval=0.5, background=colors["blue"]),
+                widget.CPUGraph(frequency=0.5, background=colors["blue"],
+                    graph_color="#747915", border_color=colors["blue"],
+                    line_width=6),
+                widget.Memory(update_interval=0.5, background=colors["green"]),
+                widget.Net(background=colors["red"]),
+                #widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),
                 # NB Systray is incompatible with Wayland, consider using StatusNotifier instead
                 # widget.StatusNotifier(),
-                widget.Systray(),
-                widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
-                widget.GenPollText(foreground="#ffffff", fontsize=16, func=get_keyboard_layout, update_interval=0.5),
-                widget.Wallpaper(directory='/home/viacheslav/wallpapers', foreground = "#ffffff", label="wallpaper"),
-                widget.QuickExit(),
+                #widget.Systray(),
+                widget.Clock(format='%d/%m/%y %H:%M', background=colors["blue"]),
+                widget.OpenWeather(location='Maykop', background=colors["blue"]),
+                #widget.GenPollText(foreground="#ffffff", fontsize=16, func=get_keyboard_layout, update_interval=0.5),
+                widget.Wallpaper(directory='/home/viacheslav/wallpapers',
+                 background = colors["green"], label="wallpaper"),
+                widget.Volume(background=colors["red"]),
+                widget.QuickExit(background=colors["blue"]),
             ],
             24,
             # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
