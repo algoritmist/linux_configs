@@ -132,6 +132,7 @@ colors = {
     "red" : "#93373b"
 }
 
+
 screens = [
     Screen(
         top=bar.Bar(
