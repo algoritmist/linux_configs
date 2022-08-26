@@ -32,6 +32,8 @@ from libqtile.utils import guess_terminal
 mod = "mod4"
 terminal = guess_terminal()
 
+screen_lock = "physlock"
+
 keys = [
     # A list of available commands that can be bound to keys can be found
     # at https://docs.qtile.org/en/latest/manual/config/lazy.html
@@ -70,7 +72,10 @@ keys = [
     Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
     Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
-    Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget")
+    Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget"),
+
+    # Custom
+    Key([mod, "shift"], "l", lazy.spawn(screen_lock), desc = "Lock Screen")
 ]
 
 groups = [Group(i) for i in "12345678"]
@@ -147,7 +152,7 @@ screens = [
                     },
                     name_transform=lambda name: name.upper(),
                 ),
-                widget.TextBox("config 0.1", name="default",
+                widget.TextBox("config 0.1.1", name="default",
                     background=colors["red"]),
                 widget.NvidiaSensors(format='GPU {temp}°C', threshold=70, foreground="#86b300",
                 foreground_alert="#ff0000", update_interval=0.5,
