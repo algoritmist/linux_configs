@@ -75,7 +75,10 @@ keys = [
     Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget"),
 
     # Custom
-    Key([mod, "shift"], "l", lazy.spawn(screen_lock), desc = "Lock Screen")
+    Key([mod, "shift"], "l", lazy.spawn(screen_lock), desc = "Lock Screen"),
+    #Backlight
+    Key([], "XF86MonBrightnessDown", lazy.spawn("xbacklight -dec 5")),
+    Key([], "XF86MonBrightnessUp", lazy.spawn("xbacklight -inc 5"))
 ]
 
 groups = [Group(i) for i in "12345678"]
@@ -121,9 +124,9 @@ layouts = [
 ]
 
 widget_defaults = dict(
-    font="sans",
-    fontsize=12,
-    padding=3,
+    font="ubuntu",
+    fontsize=16,
+    padding=2,
 )
 extension_defaults = widget_defaults.copy()
 
@@ -154,9 +157,6 @@ screens = [
                 ),
                 widget.TextBox("config 0.1.1", name="default",
                     background=colors["red"]),
-                widget.NvidiaSensors(format='GPU {temp}°C', threshold=70, foreground="#86b300",
-                foreground_alert="#ff0000", update_interval=0.5,
-                 background=colors["blue"]),
                 widget.ThermalSensor(format='{tag} : {temp:.0f}{unit}',
                  background=colors["blue"]),
                 widget.CPU(update_interval=0.5, background=colors["blue"]),
@@ -165,17 +165,21 @@ screens = [
                     line_width=6),
                 widget.Memory(update_interval=0.5, background=colors["green"]),
                 widget.Net(background=colors["red"]),
+                widget.Wlan(background=colors["red"]),
                 #widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),
                 # NB Systray is incompatible with Wayland, consider using StatusNotifier instead
                 # widget.StatusNotifier(),
                 #widget.Systray(),
                 widget.Clock(format='%d/%m/%y %H:%M', background=colors["blue"]),
-                widget.OpenWeather(location='Maykop', background=colors["blue"]),
-                #widget.GenPollText(foreground="#ffffff", fontsize=16, func=get_keyboard_layout, update_interval=0.5),
+                widget.OpenWeather(location='Saint Petersburg',
+                format='{location_city}: {main_temp} °{units_temperature} {humidity}% {icon}',
+                 background=colors["blue"]),
+                #widget.GenPollText(foreground="#ffffff", size=16, func=get_keyboard_layout, update_interval=0.5),
                 widget.Wallpaper(directory='/home/viacheslav/wallpapers',
                  background = colors["green"], label="wallpaper"),
                 widget.Volume(background=colors["red"]),
-                widget.QuickExit(background=colors["blue"]),
+                widget.Battery(background=colors["blue"]),
+                widget.QuickExit(background=colors["green"]),
             ],
             24,
             # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
