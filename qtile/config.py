@@ -24,10 +24,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from libqtile import bar, layout, widget
+from libqtile import bar, layout, widget, qtile
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
+from typing import Callable
 
 mod = "mod4"
 terminal = guess_terminal()
@@ -78,35 +79,31 @@ keys = [
     Key([mod, "shift"], "l", lazy.spawn(screen_lock), desc = "Lock Screen"),
     #Backlight
     Key([], "XF86MonBrightnessDown", lazy.spawn("xbacklight -dec 5")),
-    Key([], "XF86MonBrightnessUp", lazy.spawn("xbacklight -inc 5"))
+    Key([], "XF86MonBrightnessUp", lazy.spawn("xbacklight -inc 5")),
+    #Display switch
+    Key([], "F8", lazy.next_screen())
 ]
 
-groups = [Group(i) for i in "12345678"]
+def go_to_group(group):
+    def f(qtile):
+        if len(qtile.screens) == 1:
+            qtile.groups_map[group].cmd_toscreen()
+            return
+        if group in '1234':
+            qtile.cmd_to_screen(0)
+            qtile.groups_map[group].cmd_toscreen()
+        elif group in '5678':
+            qtile.cmd_to_screen(1)
+            qtile.groups_map[group].cmd_toscreen()
+
+    return f
+
+groups = [Group(i) for i in '12345678']
 
 for i in groups:
-    keys.extend(
-        [
-            # mod1 + letter of group = switch to group
-            Key(
-                [mod],
-                i.name,
-                lazy.group[i.name].toscreen(),
-                desc="Switch to group {}".format(i.name),
-            ),
-            # mod1 + shift + letter of group = switch to & move focused window to group
-            Key(
-                [mod, "shift"],
-                i.name,
-                lazy.window.togroup(i.name),
-                desc="Move focused window to group {}".format(i.name),
-            ),
-            # Or, use below if you prefer not to switch to that group.
-            # # mod1 + shift + letter of group = move focused window to group
-            # Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
-            #     desc="move focused window to group {}".format(i.name)),
-        ]
-    )
-
+    keys.append(Key([mod], i.name, lazy.function(go_to_group(i.name))))
+    keys.append(Key([mod, 'shift'], i.name, lazy.window.togroup(i.name)))
+                  
 layouts = [
     layout.Columns(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=4),
     layout.Max(),
@@ -146,7 +143,7 @@ screens = [
         top=bar.Bar(
         [
                 widget.CurrentLayout(),
-                widget.GroupBox(),
+                widget.GroupBox(visible_groups=['1', '2', '3', '4']),
                 widget.Prompt(),
                 widget.WindowName(),
                 widget.Chord(
@@ -186,6 +183,51 @@ screens = [
             # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
         ),
     ),
+    Screen(
+        top=bar.Bar(
+        [
+                widget.CurrentLayout(),
+                widget.GroupBox(visible_groups = ['5', '6', '7', '8']),
+                widget.Prompt(),
+                widget.WindowName(),
+                widget.Chord(
+                    chords_colors={
+                        "launch": ("#ff0000", "#ffffff"),
+                    },
+                    name_transform=lambda name: name.upper(),
+                ),
+                widget.TextBox("config 0.1.1", name="default",
+                    background=colors["red"]),
+                widget.ThermalSensor(format='{tag} : {temp:.0f}{unit}',
+                 background=colors["blue"]),
+                widget.CPU(update_interval=0.5, background=colors["blue"]),
+                widget.CPUGraph(frequency=0.5, background=colors["blue"],
+                    graph_color="#747915", border_color=colors["blue"],
+                    line_width=6),
+                widget.Memory(update_interval=0.5, background=colors["green"]),
+                widget.Net(background=colors["red"]),
+                widget.Wlan(background=colors["red"]),
+                #widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),
+                # NB Systray is incompatible with Wayland, consider using StatusNotifier instead
+                # widget.StatusNotifier(),
+                #widget.Systray(),
+                widget.Clock(format='%d/%m/%y %H:%M', background=colors["blue"]),
+                widget.OpenWeather(location='Saint Petersburg',
+                format='{location_city}: {main_temp} °{units_temperature} {humidity}% {icon}',
+                 background=colors["blue"]),
+                #widget.GenPollText(foreground="#ffffff", size=16, func=get_keyboard_layout, update_interval=0.5),
+                widget.Wallpaper(directory='/home/viacheslav/wallpapers',
+                 background = colors["green"], label="wallpaper"),
+                widget.Volume(background=colors["red"]),
+                widget.Battery(background=colors["blue"]),
+                widget.QuickExit(background=colors["green"]),
+            ],
+            24,
+            # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
+            # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
+        ),
+    ),
+
 ]
 
 # Drag floating layouts.
